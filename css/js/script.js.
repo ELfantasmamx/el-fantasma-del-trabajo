@@ -119,3 +119,57 @@ if (river) {
     river.style.transform = `translateY(${movement}px) rotate(-20deg)`;
   }, { passive: true });
 }
+/* FANTASMA PERSONALIZADO */
+
+.ghost-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  font-size: 30px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 10px rgba(57, 168, 120, .8));
+  transition: opacity .3s, transform .2s;
+}
+
+.ghost-cursor.visible {
+  opacity: 1;
+}
+
+.ghost-cursor.excited {
+  transform: translate(-50%, -50%) scale(1.35) rotate(-10deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body, a, button {
+    cursor: none;
+  }
+}
+
+/* APARICIÓN DE LAS SECCIONES */
+
+.section {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity .9s ease, transform .9s ease;
+}
+
+.section.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+
+  .section {
+    opacity: 1;
+    transform: none;
+  }
+}
