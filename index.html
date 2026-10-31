@@ -77,12 +77,115 @@
       </p>
     </section>
 
-    <section class="experience section" id="experiencia">
-      <span class="eyebrow">02 — TU ESPACIO</span>
-      <h2>Es momento de soltar.</h2>
-      <p>Muy pronto podrás explorar experiencias interactivas para cerrar tu jornada.</p>
-    </section>
+   
+<section class="experience section" id="experiencia">
 
+  <span class="eyebrow">02 — EXPLORA TU BIENESTAR</span>
+
+  <h2>¿Cuánto pesa <span>tu jornada?</span></h2>
+
+  <p class="experience-description">
+    A veces el trabajo termina, pero permanece en nuestra mente.
+    Explora estas experiencias y descubre cómo estás viviendo
+    tu tiempo fuera de la jornada laboral.
+  </p>
+
+  <div class="quiz-grid">
+
+    <article class="quiz-card">
+      <div class="quiz-number">01 / EXPERIENCIA RÁPIDA</div>
+      <div class="quiz-icon">◈</div>
+
+      <h3>Una primera mirada</h3>
+
+      <p>
+        Ocho preguntas para explorar tu relación con el trabajo
+        y tu capacidad para desconectarte.
+      </p>
+
+      <div class="quiz-meta">
+        <span>8 preguntas</span>
+        <span>3–5 minutos</span>
+      </div>
+
+      <button class="quiz-button" id="quickQuizButton">
+        Comenzar experiencia <span>→</span>
+      </button>
+    </article>
+
+    <article class="quiz-card featured">
+      <div class="quiz-number">02 / EXPERIENCIA PROFUNDA</div>
+      <div class="quiz-icon">✧</div>
+
+      <h3>Más allá de la jornada</h3>
+
+      <p>
+        Una exploración de cuatro dimensiones relacionadas
+        con la desconexión psicológica y la recuperación.
+      </p>
+
+      <div class="quiz-meta">
+        <span>20 preguntas</span>
+        <span>8–12 minutos</span>
+      </div>
+
+      <button class="quiz-button" id="deepQuizButton">
+        Explorar a profundidad <span>→</span>
+      </button>
+    </article>
+
+  </div>
+
+  <div class="quiz-container" id="quizContainer" hidden>
+
+    <div class="quiz-top">
+      <button id="exitQuiz" class="exit-quiz">
+        ← Volver
+      </button>
+
+      <span id="quizCounter">Pregunta 1</span>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="quizContent"></div>
+
+    <div class="quiz-navigation">
+      <button id="previousQuestion" class="quiz-secondary" disabled>
+        Anterior
+      </button>
+
+      <button id="nextQuestion" class="quiz-button">
+        Continuar →
+      </button>
+    </div>
+
+  </div>
+
+  <div class="quiz-result" id="quizResult" hidden>
+    <span class="eyebrow">TU EXPERIENCIA HA TERMINADO</span>
+
+    <h3 id="resultTitle">Tu resultado</h3>
+
+    <div class="result-score" id="resultScore"></div>
+
+    <p id="resultDescription"></p>
+
+    <div id="resultDimensions"></div>
+
+    <div class="result-recommendation">
+      <span>UN MOMENTO PARA TI</span>
+      <p id="resultRecommendation"></p>
+    </div>
+
+    <button id="restartQuiz" class="quiz-button">
+      Volver a explorar ↻
+    </button>
+  </div>
+
+</section>
     <section class="program section" id="programa">
       <span class="eyebrow">03 — NUESTRO PROGRAMA</span>
       <h2>Seis semanas para recuperar el equilibrio.</h2>
