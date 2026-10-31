@@ -1,0 +1,121 @@
+
+// =====================================
+// EL FANTASMA DEL TRABAJO
+// Interacciones y animaciones
+// =====================================
+
+
+// 1. CURSOR PERSONALIZADO: FANTASMA
+
+const ghost = document.getElementById("ghostCursor");
+
+let mouseX = 0;
+let mouseY = 0;
+let ghostX = 0;
+let ghostY = 0;
+
+const hasFinePointer = window.matchMedia(
+  "(hover: hover) and (pointer: fine)"
+).matches;
+
+if (ghost && hasFinePointer) {
+
+  document.addEventListener("mousemove", (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+
+    ghost.classList.add("visible");
+  });
+
+  function animateGhost() {
+    ghostX += (mouseX - ghostX) * 0.14;
+    ghostY += (mouseY - ghostY) * 0.14;
+
+    ghost.style.left = `${ghostX}px`;
+    ghost.style.top = `${ghostY}px`;
+
+    requestAnimationFrame(animateGhost);
+  }
+
+  animateGhost();
+
+  document.addEventListener("mouseout", (event) => {
+    if (!event.relatedTarget) {
+      ghost.classList.remove("visible");
+    }
+  });
+
+  // El fantasma reacciona al pasar sobre enlaces y botones.
+  document.querySelectorAll("a, button").forEach((element) => {
+    element.addEventListener("mouseenter", () => {
+      ghost.classList.add("excited");
+    });
+
+    element.addEventListener("mouseleave", () => {
+      ghost.classList.remove("excited");
+    });
+  });
+
+} else if (ghost) {
+  ghost.style.display = "none";
+}
+
+
+// 2. TRANSICIONES AL DESPLAZARSE
+
+const sections = document.querySelectorAll(".section");
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("revealed");
+      }
+    });
+  },
+  {
+    threshold: 0.15
+  }
+);
+
+sections.forEach((section) => {
+  observer.observe(section);
+});
+
+
+// 3. BOTÓN DE SONIDO AMBIENTAL
+
+const soundButton = document.getElementById("soundButton");
+const ambientSound = document.getElementById("ambientSound");
+
+if (soundButton && ambientSound) {
+
+  soundButton.addEventListener("click", async () => {
+
+    if (ambientSound.paused) {
+      try {
+        await ambientSound.play();
+        soundButton.textContent = "♫ Sonido activado";
+      } catch (error) {
+        soundButton.textContent = "No se pudo activar";
+      }
+
+    } else {
+      ambientSound.pause();
+      soundButton.textContent = "♫ Activar sonido";
+    }
+
+  });
+}
+
+
+// 4. MOVIMIENTO DEL RÍO
+
+const river = document.querySelector(".river-glow");
+
+if (river) {
+  window.addEventListener("scroll", () => {
+    const movement = window.scrollY * 0.08;
+    river.style.transform = `translateY(${movement}px) rotate(-20deg)`;
+  }, { passive: true });
+}
