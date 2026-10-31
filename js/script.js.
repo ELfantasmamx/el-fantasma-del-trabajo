@@ -1,1 +1,233 @@
 
+document.addEventListener("DOMContentLoaded", () => {
+  const quickButton = document.getElementById("quickQuizButton");
+  const deepButton = document.getElementById("deepQuizButton");
+  const container = document.getElementById("quizContainer");
+  const result = document.getElementById("quizResult");
+  const content = document.getElementById("quizContent");
+  const counter = document.getElementById("quizCounter");
+  const progress = document.getElementById("progressFill");
+  const previous = document.getElementById("previousQuestion");
+  const next = document.getElementById("nextQuestion");
+  const exit = document.getElementById("exitQuiz");
+  const restart = document.getElementById("restartQuiz");
+
+  const required = [
+    quickButton, deepButton, container, result, content,
+    counter, progress, previous, next, exit, restart
+  ];
+
+  if (required.some(element => !element)) {
+    console.error("Fantasma del Trabajo: falta algún elemento HTML del cuestionario.");
+    return;
+  }
+
+  const questions = {
+    quick: [
+      ["rumination", "Al terminar mi jornada, sigo pensando en asuntos pendientes del trabajo.", false],
+      ["boundaries", "Me cuesta dejar de responder mensajes laborales fuera de mi horario.", false],
+      ["disconnection", "Aunque estoy descansando, siento que mentalmente sigo trabajando.", false],
+      ["recovery", "Después de trabajar, consigo realizar actividades que disfruto.", true],
+      ["rumination", "Me preocupa cometer errores laborales incluso cuando ya terminó mi jornada.", false],
+      ["boundaries", "Puedo establecer límites entre mis responsabilidades laborales y mi vida personal.", true],
+      ["disconnection", "Durante mi tiempo libre reviso constantemente asuntos relacionados con el trabajo.", false],
+      ["recovery", "Siento que tengo suficiente tiempo para recuperar mi energía antes de volver a trabajar.", true]
+    ],
+    deep: [
+      ["rumination", "Pienso repetidamente en problemas laborales incluso cuando estoy en casa.", false],
+      ["rumination", "Me cuesta dejar de analizar situaciones de trabajo durante mi tiempo libre.", false],
+      ["rumination", "Me preocupa lo que pueda suceder en el trabajo al día siguiente.", false],
+      ["rumination", "Repaso mentalmente conversaciones o conflictos laborales después de mi jornada.", false],
+      ["rumination", "Consigo dejar de pensar en el trabajo cuando termina mi horario.", true],
+      ["boundaries", "Respondo mensajes laborales aunque no me corresponda estar disponible.", false],
+      ["boundaries", "Me resulta difícil decir que no a solicitudes laborales fuera de mi horario.", false],
+      ["boundaries", "Puedo respetar mis horarios de descanso sin sentir culpa.", true],
+      ["boundaries", "Las responsabilidades laborales interfieren con mis actividades personales.", false],
+      ["boundaries", "Tengo claridad sobre cuándo termina mi responsabilidad laboral diaria.", true],
+      ["disconnection", "Durante mis descansos sigo pendiente de correos, llamadas o mensajes laborales.", false],
+      ["disconnection", "Me cuesta disfrutar actividades personales porque pienso en el trabajo.", false],
+      ["disconnection", "Puedo dedicar mi atención a actividades ajenas al ámbito laboral.", true],
+      ["disconnection", "Siento que debo permanecer disponible para el trabajo incluso en mis días libres.", false],
+      ["disconnection", "Cuando estoy con familiares o amistades logro dejar de lado las preocupaciones laborales.", true],
+      ["recovery", "Después de trabajar tengo tiempo suficiente para descansar.", true],
+      ["recovery", "Realizo actividades que me ayudan a recuperar mi energía física y mental.", true],
+      ["recovery", "Al comenzar una nueva jornada me siento recuperado de la anterior.", true],
+      ["recovery", "Mi descanso suele verse interrumpido por preocupaciones laborales.", false],
+      ["recovery", "Puedo dedicar tiempo a mis intereses personales sin sentir que estoy descuidando el trabajo.", true]
+    ]
+  };
+
+  const options = [
+    "Nunca",
+    "Casi nunca",
+    "Algunas veces",
+    "Frecuentemente",
+    "Siempre"
+  ];
+
+  const dimensionNames = {
+    rumination: "Pensamientos laborales",
+    boundaries: "Límites trabajo-vida",
+    disconnection: "Desconexión psicológica",
+    recovery: "Recuperación personal"
+  };
+
+  let selectedQuestions = [];
+  let answers = [];
+  let current = 0;
+
+  function startQuiz(type) {
+    selectedQuestions = questions[type];
+    answers = Array(selectedQuestions.length).fill(null);
+    current = 0;
+    result.hidden = true;
+    container.hidden = false;
+    container.scrollIntoView({ behavior: "smooth", block: "start" });
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const question = selectedQuestions[current];
+
+    counter.textContent = `Pregunta ${current + 1} de ${selectedQuestions.length}`;
+    progress.style.width = `${((current + 1) / selectedQuestions.length) * 100}%`;
+
+    content.innerHTML = `
+      <h3>${question[1]}</h3>
+      <div class="answer-list">
+        ${options.map((option, index) => `
+          <button type="button"
+            class="answer-option ${answers[current] === index ? "selected" : ""}"
+            data-answer="${index}">
+            ${option}
+          </button>
+        `).join("")}
+      </div>
+      <p class="quiz-note">Selecciona la respuesta que mejor describa tu experiencia.</p>
+    `;
+
+    content.querySelectorAll("[data-answer]").forEach(button => {
+      button.addEventListener("click", () => {
+        answers[current] = Number(button.dataset.answer);
+        renderQuestion();
+      });
+    });
+
+    previous.disabled = current === 0;
+    next.textContent = current === selectedQuestions.length - 1
+      ? "Ver resultados"
+      : "Siguiente pregunta";
+
+    next.disabled = answers[current] === null;
+  }
+
+  function calculateResults() {
+    const dimensions = {
+      rumination: [],
+      boundaries: [],
+      disconnection: [],
+      recovery: []
+    };
+
+    selectedQuestions.forEach((question, index) => {
+      const [dimension, , positive] = question;
+      const answer = answers[index];
+      const score = positive ? 4 - answer : answer;
+      dimensions[dimension].push(score);
+    });
+
+    return Object.entries(dimensions).map(([key, values]) => {
+      const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+      return {
+        key,
+        name: dimensionNames[key],
+        score: Math.round((average / 4) * 100)
+      };
+    });
+  }
+
+  function showResults() {
+    const dimensions = calculateResults();
+    const total = Math.round(
+      dimensions.reduce((sum, dimension) => sum + dimension.score, 0) / dimensions.length
+    );
+
+    let title;
+    let description;
+
+    if (total < 35) {
+      title = "Un espacio para fortalecer";
+      description = "Tus respuestas reflejan una presencia relativamente baja de las dificultades exploradas. Mantener tus hábitos de descanso y tus límites puede ayudarte a conservar este equilibrio.";
+    } else if (total < 65) {
+      title = "Tu jornada merece atención";
+      description = "Tus respuestas muestran algunas dificultades para separar el trabajo de tu vida personal. Identificar qué situaciones te afectan puede ayudarte a mejorar tus espacios de recuperación.";
+    } else {
+      title = "Es momento de recuperar tu espacio";
+      description = "Tus respuestas reflejan una presencia frecuente de dificultades relacionadas con la desconexión y la recuperación. Puede ser útil revisar tus límites laborales y buscar espacios de descanso.";
+    }
+
+    document.getElementById("resultTitle").textContent = title;
+    document.getElementById("resultScore").textContent = `${total}%`;
+    document.getElementById("resultDescription").textContent = description;
+
+    document.getElementById("resultDimensions").innerHTML = dimensions.map(item => `
+      <div class="dimension-item">
+        <div class="dimension-heading">
+          <span>${item.name}</span>
+          <strong>${item.score}%</strong>
+        </div>
+        <div class="dimension-track">
+          <div class="dimension-fill" style="width:${item.score}%"></div>
+        </div>
+      </div>
+    `).join("");
+
+    const highest = [...dimensions].sort((a, b) => b.score - a.score)[0];
+
+    document.getElementById("resultRecommendation").textContent =
+      `Una dimensión que merece especial atención es: ${highest.name.toLowerCase()}. Puedes comenzar estableciendo pequeños hábitos de desconexión y recuperación.`;
+
+    container.hidden = true;
+    result.hidden = false;
+    result.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  quickButton.addEventListener("click", () => startQuiz("quick"));
+  deepButton.addEventListener("click", () => startQuiz("deep"));
+
+  next.addEventListener("click", () => {
+    if (answers[current] === null) return;
+
+    if (current < selectedQuestions.length - 1) {
+      current++;
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  });
+
+  previous.addEventListener("click", () => {
+    if (current > 0) {
+      current--;
+      renderQuestion();
+    }
+  });
+
+  exit.addEventListener("click", () => {
+    container.hidden = true;
+    result.hidden = true;
+    document.querySelector(".quiz-grid")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  });
+
+  restart.addEventListener("click", () => {
+    result.hidden = true;
+    container.hidden = false;
+    startQuiz(selectedQuestions.length === 8 ? "quick" : "deep");
+  });
+
+  console.log("El Fantasma del Trabajo: cuestionarios cargados correctamente.");
+});
+
